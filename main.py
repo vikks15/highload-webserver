@@ -34,7 +34,7 @@ def run_server(config):
     listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     listen_socket.bind((host, port))
     listen_socket.listen(queue_size)
-    document_root = '.' + config['document_root']
+    document_root = config['document_root']
     #document_root = '.'
 
     print('Serving HTTP on port %s ...' % port)
@@ -49,7 +49,7 @@ def run_server(config):
 
 
 def read_config():
-    config_path = './httpd.conf'
+    config_path = '/myserver/httpd.conf'
     try:
         with open(config_path) as config_file:
             config_strings_arr = config_file.read().split('\n')
