@@ -49,7 +49,7 @@ def run_server(config):
 
 
 def read_config():
-    config_path = './etc/httpd.conf'
+    config_path = './httpd.conf'
     try:
         with open(config_path) as config_file:
             config_strings_arr = config_file.read().split('\n')
