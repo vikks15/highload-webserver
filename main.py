@@ -1,3 +1,4 @@
+import os
 import socket
 from src.HttpHandler import HttpHandler
 import threading
@@ -24,8 +25,9 @@ def handle_request(listen_socket, document_root):
 
 
 def run_server(config):
-    host = '127.0.0.1'
+    host = '0.0.0.0'
     port = 80
+    #host = '127.0.0.1'
     #port = 8888
     queue_size = 5
     thread_pool = []
@@ -34,10 +36,11 @@ def run_server(config):
     listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     listen_socket.bind((host, port))
     listen_socket.listen(queue_size)
-    #document_root = config['document_root']
-    document_root = '/myserver'
+    document_root = config['document_root']
 
     print('Serving HTTP on port %s ...' % port)
+    print('Document root ' + document_root)
+    print(os.path.isdir(document_root + '/httptest'))
 
     for i in range(config['thread_limit']):
         current_thread = threading.Thread(target=handle_request, args=(listen_socket, document_root,))
