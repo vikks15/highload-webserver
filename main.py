@@ -34,8 +34,8 @@ def run_server(config):
     listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     listen_socket.bind((host, port))
     listen_socket.listen(queue_size)
-    document_root = config['document_root']
-    #document_root = '.'
+    #document_root = config['document_root']
+    document_root = '/myserver'
 
     print('Serving HTTP on port %s ...' % port)
 
