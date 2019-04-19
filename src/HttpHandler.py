@@ -2,6 +2,23 @@ import os
 from datetime import datetime
 import urllib.parse
 
+content_types = {
+    '.txt': 'text/plain',
+    '.html': 'text/html',
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.swf': 'application/x-shockwave-flash',
+}
+
+messages = {
+    '403': 'Forbidden',
+    '404': 'Not Found',
+    '405': 'Method Not Allowed'
+}
 
 class HttpHandler:
     def __init__(self, request, document_root):
@@ -15,28 +32,12 @@ class HttpHandler:
         return headers
 
     def return_error_response(self, code):
-        messages = {
-            '403': 'Forbidden',
-            '404': 'Not Found',
-            '405': 'Method Not Allowed'
-        }
         response = 'HTTP/1.1 ' + str(code) + ' ' + messages[str(code)] + '\n'
         response += self.set_general_headers()
         response += '\n'
-        return response
+        return response.encode()
 
     def set_content_type(self, path):
-        content_types = {
-            '.txt': 'text/plain',
-            '.html': 'text/html',
-            '.css': 'text/css',
-            '.js': 'application/javascript',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.png': 'image/png',
-            '.gif': 'image/gif',
-            '.swf': 'application/x-shockwave-flash',
-        }
         file_name, file_extension = os.path.splitext(path)
         return 'Content-Type: ' + content_types[file_extension] + '\r\n'
 
@@ -52,13 +53,8 @@ class HttpHandler:
                 size = os.stat(path).st_size
                 response += 'Content-Length: ' + str(size) + '\r\n'
                 response += '\n'
-
-            if 'image' in content_type or 'application' in content_type:
-                final_response = bytes(response, 'UTF-8')
+                final_response = response.encode()
                 final_response += body
-            else:
-                final_response = response
-                final_response += body.decode()
 
             return final_response
 
@@ -75,16 +71,15 @@ class HttpHandler:
         response += 'Content-Length: ' + str(file_size) + '\r\n'
         response += self.set_content_type(path)
         response += '\r\n'
-        return response
+        return response.encode()
 
     def make_response(self):
-        request_first_row = self.request.split('\r\n')[0]
-        method, url_path, version = request_first_row.split(' ')
+        request_first_row = self.request.split('\r\n')[0].split(' ')
 
-        print(request_first_row)
-        print('urlpath = ' + url_path + '\n')
+        if not (request_first_row[0] == 'GET' or request_first_row[0] == 'HEAD'):
+            return self.return_error_response(405)  
 
-        decoded_path = urllib.parse.unquote(url_path)  # for percent encoded urls
+        decoded_path = urllib.parse.unquote(request_first_row[1])  # for percent encoded urls
         path = decoded_path.split('?')[0]
 
         # document_root_escaping check
@@ -98,9 +93,7 @@ class HttpHandler:
         else:
             file_path = self.document_root + path
 
-        if method == 'GET':
-            return self.response_to_GET(file_path)
-        elif method == 'HEAD':
+        if request_first_row[0] == 'HEAD':
             return self.response_to_HEAD(file_path)
-        else:
-            return self.return_error_response(405)
+
+        return self.response_to_GET(file_path)
