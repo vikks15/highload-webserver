@@ -43,7 +43,7 @@ def run_server(config):
 
 
 def read_config():
-    config_path = './httpd.conf'
+    config_path = '/etc/httpd.conf'
     try:
         with open(config_path) as config_file:
             config_strings_arr = config_file.read().split('\n')
@@ -53,6 +53,7 @@ def read_config():
     config_data = dict()
 
     for line in config_strings_arr:
+        print(line)
         if line:
             key, value = line.split()[0:2]
             config_data[key] = value
