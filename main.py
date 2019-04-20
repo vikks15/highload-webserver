@@ -43,7 +43,7 @@ def run_server(config):
 
 
 def read_config():
-    config_path = '/etc/httpd.conf'
+    config_path = './httpd.conf'
     try:
         with open(config_path) as config_file:
             config_strings_arr = config_file.read().split('\n')
@@ -53,8 +53,9 @@ def read_config():
     config_data = dict()
 
     for line in config_strings_arr:
-        key, value = line.split()[0:2]
-        config_data[key] = value
+        if line:
+            key, value = line.split()[0:2]
+            config_data[key] = value
 
     config_data['cpu_limit'] = int(config_data['cpu_limit'])
     config_data['thread_limit'] = int(config_data['thread_limit'])
